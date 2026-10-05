@@ -1,0 +1,50 @@
+[
+  {
+    "id": "sun",
+    "label": "Sun",
+    "image": "./images/sun.svg",
+    "backImage": "./images/card-back.webp"
+  },
+  {
+    "id": "moon",
+    "label": "Moon",
+    "image": "./images/moon.svg",
+    "backImage": "./images/card-back.webp"
+  },
+  {
+    "id": "star",
+    "label": "Star",
+    "image": "./images/star.svg",
+    "backImage": "./images/card-back.webp"
+  },
+  {
+    "id": "comet",
+    "label": "Comet",
+    "image": "./images/comet.svg",
+    "backImage": "./images/card-back.webp"
+  },
+  {
+    "id": "planet",
+    "label": "Planet",
+    "image": "./images/planet.svg",
+    "backImage": "./images/card-back.webp"
+  },
+  {
+    "id": "rocket",
+    "label": "Rocket",
+    "image": "./images/rocket.svg",
+    "backImage": "./images/card-back.webp"
+  },
+  {
+    "id": "galaxy",
+    "label": "Galaxy",
+    "image": "./images/galaxy.svg",
+    "backImage": "./images/card-back.webp"
+  },
+  {
+    "id": "satellite",
+    "label": "Satellite",
+    "image": "./images/satellite.svg",
+    "backImage": "./images/card-back.webp"
+  }
+]
