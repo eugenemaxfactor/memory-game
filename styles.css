@@ -17,6 +17,7 @@
 
   --container-width: 960px;
   --board-width: 560px;
+  --logo-size: 40px;
   --card-image-size: 72px;
   --card-back-image-size: 100%;
   --button-min-height: 40px;
@@ -70,6 +71,18 @@ body {
   padding-bottom: var(--space-16);
 }
 
+.app__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.app__logo {
+  display: block;
+  width: var(--logo-size);
+  height: var(--logo-size);
+}
+
 .app__title {
   margin: 0;
   font-size: var(--font-size-32);
@@ -117,8 +130,8 @@ body {
   display: flex;
   flex: 1;
   min-height: 0;
-  padding-top: var(--space-16);
-  padding-bottom: var(--space-16);
+  padding-top: var(--space-24);
+  padding-bottom: var(--space-24);
 }
 
 .game__board {

@@ -227,8 +227,8 @@ function formatDate(result) {
   return `${day}.${month}.${year}`;
 }
 
-function createResultText(result, index) {
-  return `${index + 1}. ${result.moves} moves - ${formatDate(result)}`;
+function createResultText(result) {
+  return `${result.moves} moves - ${formatDate(result)}`;
 }
 
 function renderResultItem(result, index) {
@@ -448,18 +448,21 @@ function parseCardsResponse(response) {
 
 function createHeader() {
   const header = createElement('header', 'app__header');
+  const brand = createElement('div', 'app__brand');
+  const logo = createImage('app__logo', './images/brain.svg', '');
   const title = createElement('h1', 'app__title', 'Memory Game');
   const scorePanel = createScorePanel();
   const actions = createElement('div', 'app__actions');
   const newGameButton = createElement('button', 'button', 'New Game');
   const leaderboardButton = createElement('button', 'button', 'Leaderboard');
 
+  brand.append(logo, title);
   newGameButton.classList.add('new-game-button');
   newGameButton.addEventListener('click', startNewGame);
   leaderboardButton.classList.add('leaderboard-button');
   leaderboardButton.addEventListener('click', openLeaderboardModal);
   actions.append(newGameButton, leaderboardButton);
-  header.append(title, scorePanel, actions);
+  header.append(brand, scorePanel, actions);
 
   return header;
 }
