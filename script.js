@@ -16,22 +16,22 @@ const gameState = {
   closeCardsTimerId: null,
 };
 
-function addCardPairToDeck(cardType) {
+function addPairToDeck(cardType) {
   cardDeck.push(
     { ...cardType, cardId: `${cardType.id}-1` },
     { ...cardType, cardId: `${cardType.id}-2` }
   );
 }
 
-function createCardDeck() {
+function createDeck() {
   cardDeck.length = 0;
 
-  CARD_TYPES.forEach(addCardPairToDeck);
+  CARD_TYPES.forEach(addPairToDeck);
 
   return cardDeck;
 }
 
-function shuffleDeck(deck) {
+function shuffleCards(deck) {
   for (let currentIndex = deck.length - 1; currentIndex > 0; currentIndex -= 1) {
     const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
     const currentCard = deck[currentIndex];
@@ -67,12 +67,12 @@ function createImage(className, src, alt) {
   return image;
 }
 
-function getCardImage(card) {
+function findCardImage(card) {
   return card.querySelector('.card__image');
 }
 
-function showCardImage(card, src, alt) {
-  const image = getCardImage(card);
+function setCardImage(card, src, alt) {
+  const image = findCardImage(card);
 
   image.src = src;
   image.alt = alt;
@@ -95,12 +95,12 @@ function createCard(cardData) {
 }
 
 function openCard(card) {
-  showCardImage(card, card.dataset.cardImage, card.dataset.cardLabel);
+  setCardImage(card, card.dataset.cardImage, card.dataset.cardLabel);
   card.classList.add('card--opened');
 }
 
 function closeCard(card) {
-  showCardImage(card, card.dataset.cardBackImage, '');
+  setCardImage(card, card.dataset.cardBackImage, '');
   card.classList.remove('card--opened');
 }
 
@@ -108,7 +108,7 @@ function isCardOpened(card) {
   return card.classList.contains('card--opened');
 }
 
-function rememberOpenedCard(card) {
+function addOpenedCard(card) {
   gameState.openedCards.push(card);
 }
 
@@ -120,28 +120,28 @@ function isGameFinished() {
   return gameState.isGameFinished;
 }
 
-function lockBoardIfTwoCardsOpened() {
+function lockBoardAfterSecondCard() {
   if (gameState.openedCards.length === 2) {
     gameState.isBoardLocked = true;
   }
 }
 
-function areOpenedCardsMatched() {
+function hasOpenedCardsMatch() {
   const firstCard = gameState.openedCards[0];
   const secondCard = gameState.openedCards[1];
 
   return firstCard.dataset.cardType === secondCard.dataset.cardType;
 }
 
-function markCardAsMatched(card) {
+function markCardMatched(card) {
   card.classList.add('card--matched');
 }
 
-function markOpenedCardsAsMatched() {
-  gameState.openedCards.forEach(markCardAsMatched);
+function markOpenedCardsMatched() {
+  gameState.openedCards.forEach(markCardMatched);
 }
 
-function resetOpenedCards() {
+function clearOpenedCards() {
   gameState.openedCards = [];
 }
 
@@ -149,15 +149,15 @@ function unlockBoard() {
   gameState.isBoardLocked = false;
 }
 
-function closeOpenedCards() {
+function closeSelectedCards() {
   gameState.openedCards.forEach(closeCard);
-  resetOpenedCards();
+  clearOpenedCards();
   unlockBoard();
   gameState.closeCardsTimerId = null;
 }
 
-function closeUnmatchedCards() {
-  gameState.closeCardsTimerId = setTimeout(closeOpenedCards, 1000);
+function closeUnmatchedCardsLater() {
+  gameState.closeCardsTimerId = setTimeout(closeSelectedCards, 1000);
 }
 
 function updateMovesCounter() {
@@ -178,7 +178,7 @@ function updateVictoryMessage() {
   victoryMessage.textContent = `Moves: ${gameState.moves}`;
 }
 
-function readLeaderboardResults() {
+function getSavedResults() {
   const savedResults = localStorage.getItem(LEADERBOARD_STORAGE_KEY);
 
   if (savedResults === null) {
@@ -188,37 +188,37 @@ function readLeaderboardResults() {
   return JSON.parse(savedResults);
 }
 
-function writeLeaderboardResults(results) {
+function saveResults(results) {
   localStorage.setItem(LEADERBOARD_STORAGE_KEY, JSON.stringify(results));
 }
 
-function createCurrentResult() {
+function createGameResult() {
   return {
     moves: gameState.moves,
     date: new Date().toISOString(),
   };
 }
 
-function compareResultsByMoves(firstResult, secondResult) {
+function sortResultsByMoves(firstResult, secondResult) {
   return firstResult.moves - secondResult.moves;
 }
 
-function saveCurrentResult() {
-  const results = readLeaderboardResults();
-  const currentResult = createCurrentResult();
+function saveGameResult() {
+  const results = getSavedResults();
+  const currentResult = createGameResult();
 
   results.push(currentResult);
-  results.sort(compareResultsByMoves);
-  writeLeaderboardResults(results.slice(0, LEADERBOARD_LIMIT));
+  results.sort(sortResultsByMoves);
+  saveResults(results.slice(0, LEADERBOARD_LIMIT));
 }
 
-function clearLeaderboardList() {
+function clearResultsList() {
   const leaderboardList = document.querySelector('.leaderboard-list');
 
   leaderboardList.replaceChildren();
 }
 
-function formatResultDate(result) {
+function formatDate(result) {
   const date = new Date(result.date);
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -227,24 +227,24 @@ function formatResultDate(result) {
   return `${day}.${month}.${year}`;
 }
 
-function formatResultText(result, index) {
-  return `${index + 1}. ${result.moves} moves - ${formatResultDate(result)}`;
+function createResultText(result, index) {
+  return `${index + 1}. ${result.moves} moves - ${formatDate(result)}`;
 }
 
-function renderLeaderboardResult(result, index) {
+function renderResultItem(result, index) {
   const leaderboardList = document.querySelector('.leaderboard-list');
-  const resultItem = createElement('li', 'leaderboard-list__item', formatResultText(result, index));
+  const resultItem = createElement('li', 'leaderboard-list__item', createResultText(result, index));
 
   leaderboardList.append(resultItem);
 }
 
-function renderLeaderboardResults() {
-  const results = readLeaderboardResults();
+function renderResultsList() {
+  const results = getSavedResults();
   const emptyMessage = document.querySelector('.leaderboard-empty');
 
-  clearLeaderboardList();
+  clearResultsList();
   emptyMessage.hidden = results.length > 0;
-  results.forEach(renderLeaderboardResult);
+  results.forEach(renderResultItem);
 }
 
 function resetGameState() {
@@ -256,14 +256,14 @@ function resetGameState() {
   gameState.closeCardsTimerId = null;
 }
 
-function clearCloseCardsTimer() {
+function stopCloseCardsTimer() {
   if (gameState.closeCardsTimerId !== null) {
     clearTimeout(gameState.closeCardsTimerId);
     gameState.closeCardsTimerId = null;
   }
 }
 
-function clearBoard() {
+function clearGameBoard() {
   const board = document.querySelector('.game__board');
 
   board.replaceChildren();
@@ -271,12 +271,12 @@ function clearBoard() {
 
 function startNewGame() {
   closeVictoryModal();
-  clearCloseCardsTimer();
+  stopCloseCardsTimer();
   resetGameState();
   updateMovesCounter();
   updatePairsCounter();
-  clearBoard();
-  renderCards();
+  clearGameBoard();
+  renderBoard();
 }
 
 function openVictoryModal() {
@@ -303,7 +303,7 @@ function isVictoryModalOpen() {
 function openLeaderboardModal() {
   const leaderboardModal = document.querySelector('.leaderboard-modal');
 
-  renderLeaderboardResults();
+  renderResultsList();
   leaderboardModal.hidden = false;
   document.body.classList.add('page--modal-open');
 }
@@ -321,7 +321,7 @@ function isLeaderboardModalOpen() {
   return !leaderboardModal.hidden;
 }
 
-function handleModalBackdropClick(event) {
+function handleVictoryBackdropClick(event) {
   if (event.target === event.currentTarget) {
     closeVictoryModal();
   }
@@ -333,7 +333,7 @@ function handleLeaderboardBackdropClick(event) {
   }
 }
 
-function handleDocumentKeydown(event) {
+function handleEscapeKey(event) {
   if (event.key !== 'Escape') {
     return;
   }
@@ -347,14 +347,14 @@ function handleDocumentKeydown(event) {
   }
 }
 
-function increaseMovesIfTwoCardsOpened() {
+function updateMovesAfterSecondCard() {
   if (gameState.openedCards.length === 2) {
     gameState.moves += 1;
     updateMovesCounter();
   }
 }
 
-function increaseMatchedPairs() {
+function addMatchedPair() {
   gameState.matchedPairs += 1;
   updatePairsCounter();
 }
@@ -362,33 +362,33 @@ function increaseMatchedPairs() {
 function finishGame() {
   gameState.isGameFinished = true;
   gameState.isBoardLocked = true;
-  saveCurrentResult();
+  saveGameResult();
   openVictoryModal();
 }
 
-function finishGameIfAllPairsMatched() {
+function finishGameIfComplete() {
   if (gameState.matchedPairs === CARD_TYPES.length) {
     finishGame();
   }
 }
 
-function processOpenedCards() {
+function checkOpenedCards() {
   if (gameState.openedCards.length !== 2) {
     return;
   }
 
-  if (areOpenedCardsMatched()) {
-    markOpenedCardsAsMatched();
-    increaseMatchedPairs();
-    finishGameIfAllPairsMatched();
-    resetOpenedCards();
+  if (hasOpenedCardsMatch()) {
+    markOpenedCardsMatched();
+    addMatchedPair();
+    finishGameIfComplete();
+    clearOpenedCards();
     if (!isGameFinished()) {
       unlockBoard();
     }
     return;
   }
 
-  closeUnmatchedCards();
+  closeUnmatchedCardsLater();
 }
 
 function handleCardClick(event) {
@@ -407,42 +407,42 @@ function handleCardClick(event) {
   }
 
   openCard(card);
-  rememberOpenedCard(card);
-  increaseMovesIfTwoCardsOpened();
-  lockBoardIfTwoCardsOpened();
-  processOpenedCards();
+  addOpenedCard(card);
+  updateMovesAfterSecondCard();
+  lockBoardAfterSecondCard();
+  checkOpenedCards();
 }
 
-function addCardToBoard(cardData) {
+function renderCard(cardData) {
   const board = document.querySelector('.game__board');
   const card = createCard(cardData);
 
   board.append(card);
 }
 
-function renderCards() {
-  const deck = createCardDeck();
-  const shuffledDeck = shuffleDeck(deck);
+function renderBoard() {
+  const deck = createDeck();
+  const shuffledDeck = shuffleCards(deck);
 
-  shuffledDeck.forEach(addCardToBoard);
+  shuffledDeck.forEach(renderCard);
 }
 
-function saveLoadedCardType(cardType) {
+function saveCardType(cardType) {
   CARD_TYPES.push(cardType);
 }
 
-function saveLoadedCardTypes(cardTypes) {
+function saveCardTypes(cardTypes) {
   CARD_TYPES.length = 0;
-  cardTypes.forEach(saveLoadedCardType);
+  cardTypes.forEach(saveCardType);
 }
 
-function loadCardTypes() {
+function loadCardsData() {
   return fetch(CARDS_DATA_URL)
-    .then(parseCardTypesResponse)
-    .then(saveLoadedCardTypes);
+    .then(parseCardsResponse)
+    .then(saveCardTypes);
 }
 
-function parseCardTypesResponse(response) {
+function parseCardsResponse(response) {
   return response.json();
 }
 
@@ -502,7 +502,7 @@ function createModal(className, titleText, handleBackdropClick) {
 }
 
 function createVictoryModal() {
-  const modalElements = createModal('modal', 'You won!', handleModalBackdropClick);
+  const modalElements = createModal('modal', 'You won!', handleVictoryBackdropClick);
   const message = createElement('p', 'modal__message', 'Moves: 0');
   const newGameButton = createElement('button', 'button', 'New Game');
   const closeButton = createElement('button', 'button', 'Close');
@@ -541,16 +541,16 @@ function renderApp() {
 
   app.append(header, game, victoryModal, leaderboardModal);
   document.body.append(app);
-  document.addEventListener('keydown', handleDocumentKeydown);
-  renderCards();
+  document.addEventListener('keydown', handleEscapeKey);
+  renderBoard();
 }
 
-function renderAppAfterCardTypesLoaded() {
+function renderAppAfterCardsLoaded() {
   renderApp();
 }
 
 function startApp() {
-  loadCardTypes().then(renderAppAfterCardTypesLoaded);
+  loadCardsData().then(renderAppAfterCardsLoaded);
 }
 
 startApp();
